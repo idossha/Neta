@@ -5,6 +5,7 @@ A lightweight, command-line Python application for real-time voice transcription
 ## Features
 
 - 🎙️ **Real-time transcription** using Faster Whisper
+- 🎬 **Video file transcription** from .mp4, .mov, and other formats
 - 💾 **Automatic session saving** to timestamped .txt files
 - ⚡ **Optimized performance** with voice activity detection
 - 🏗️ **Modular design** for easy customization
@@ -22,6 +23,8 @@ pip install -r requirements.txt
 
 ## Usage
 
+### Real-time Transcription
+
 ```bash
 # Basic usage (base model)
 python -m neta
@@ -34,6 +37,21 @@ python -m neta --model base     # Default, recommended
 # Different compute type
 python -m neta --compute-type float16  # Higher quality, slower
 ```
+
+### Video File Transcription
+
+```bash
+# Basic usage
+neta -i video.mp4 -o transcription.txt
+
+# With different model
+neta -i recording.mov -o output.txt --model small
+
+# Full example
+neta -i presentation.mp4 -o transcript.txt --model base --compute-type int8
+```
+
+Supported video formats: .mp4, .mov, .avi, .mkv, and any format supported by ffmpeg.
 
 ## How it works
 
@@ -80,8 +98,12 @@ Edit `src/neta/config.py` to customize:
 ## Requirements
 
 - Python 3.8+
-- Microphone access
+- Microphone access (for real-time mode)
 - PortAudio (usually included with sounddevice)
+- ffmpeg (for video transcription mode)
+  - macOS: `brew install ffmpeg`
+  - Linux: `apt install ffmpeg` or `yum install ffmpeg`
+  - Windows: Download from [ffmpeg.org](https://ffmpeg.org/download.html)
 
 ## Controls
 
