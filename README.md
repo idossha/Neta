@@ -4,17 +4,20 @@ A lightweight, command-line Python application for real-time voice transcription
 
 ## Features
 
-- 🎙️ **Real-time transcription** using Faster Whisper
-- 🎬 **Video file transcription** from .mp4, .mov, and other formats
-- 💾 **Automatic session saving** to timestamped .txt files
-- ⚡ **Optimized performance** with voice activity detection
-- 🏗️ **Modular design** for easy customization
-- 📝 **Clean CLI interface** with live feedback
+- Real-time transcription using Faster Whisper
+- Video file transcription from .mp4, .mov, and other formats
+- Automatic session saving to timestamped .txt files
+- Optimized performance with voice activity detection
+- Modular design for easy customization
+- Clean CLI interface with live feedback
 
 ## Installation
 
 ```bash
-# Install from source
+# Install from source using uv
+uv sync
+
+# Or install using pip
 pip install -e .
 
 # Or install dependencies manually

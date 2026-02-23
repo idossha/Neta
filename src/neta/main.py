@@ -23,9 +23,11 @@ def transcribe_video(input_path, output_path, model_size="base", compute_type="i
 
     # Check if ffmpeg is available
     try:
-        subprocess.run(['ffmpeg', '-version'], capture_output=True, check=True)
+        subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True)
     except (subprocess.CalledProcessError, FileNotFoundError):
-        print("Error: ffmpeg not found. Please install ffmpeg to use video transcription.")
+        print(
+            "Error: ffmpeg not found. Please install ffmpeg to use video transcription."
+        )
         print("Install with: brew install ffmpeg (macOS) or apt install ffmpeg (Linux)")
         sys.exit(1)
 
@@ -35,20 +37,29 @@ def transcribe_video(input_path, output_path, model_size="base", compute_type="i
     print(f"Extracting audio from video: {input_path}...")
 
     # Create a temporary file for the extracted audio
-    with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_audio:
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
         temp_audio_path = temp_audio.name
 
     try:
         # Extract audio using ffmpeg (convert to 16kHz mono WAV)
-        subprocess.run([
-            'ffmpeg', '-i', input_path,
-            '-vn',  # No video
-            '-acodec', 'pcm_s16le',  # PCM 16-bit
-            '-ar', '16000',  # 16kHz sample rate
-            '-ac', '1',  # Mono
-            '-y',  # Overwrite output file
-            temp_audio_path
-        ], capture_output=True, check=True)
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-i",
+                input_path,
+                "-vn",  # No video
+                "-acodec",
+                "pcm_s16le",  # PCM 16-bit
+                "-ar",
+                "16000",  # 16kHz sample rate
+                "-ac",
+                "1",  # Mono
+                "-y",  # Overwrite output file
+                temp_audio_path,
+            ],
+            capture_output=True,
+            check=True,
+        )
 
         print("Transcribing audio...")
 
@@ -57,7 +68,7 @@ def transcribe_video(input_path, output_path, model_size="base", compute_type="i
             temp_audio_path,
             language="en",
             vad_filter=True,
-            vad_parameters=dict(threshold=0.5, min_speech_duration_ms=250)
+            vad_parameters=dict(threshold=0.5, min_speech_duration_ms=250),
         )
 
         # Collect all transcription segments
@@ -67,10 +78,12 @@ def transcribe_video(input_path, output_path, model_size="base", compute_type="i
                 # Format with timestamps
                 start_time = format_timestamp(segment.start)
                 end_time = format_timestamp(segment.end)
-                transcriptions.append(f"[{start_time} -> {end_time}] {segment.text.strip()}")
+                transcriptions.append(
+                    f"[{start_time} -> {end_time}] {segment.text.strip()}"
+                )
 
         # Write to output file
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             f.write(f"Neta Video Transcription\n")
             f.write(f"Source: {input_path}\n")
             f.write(f"Model: {model_size}\n")
@@ -113,18 +126,32 @@ Examples:
   Video transcription mode:
     neta -i video.mp4 -o transcription.txt
     neta -i recording.mov -o output.txt --model small
-        """
+        """,
     )
-    parser.add_argument("-i", "--input", type=str,
-                       help="Input video file (.mp4, .mov, etc.) for transcription")
-    parser.add_argument("-o", "--output", type=str,
-                       help="Output text file for transcription (required with -i)")
-    parser.add_argument("--model", default="base",
-                       choices=["tiny", "base", "small", "medium", "large-v2", "large-v3"],
-                       help="Whisper model size (default: base)")
-    parser.add_argument("--compute-type", default="int8",
-                       choices=["int8", "float16", "float32"],
-                       help="Compute type for optimization (default: int8)")
+    parser.add_argument(
+        "-i",
+        "--input",
+        type=str,
+        help="Input video file (.mp4, .mov, etc.) for transcription",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        help="Output text file for transcription (required with -i)",
+    )
+    parser.add_argument(
+        "--model",
+        default="base",
+        choices=["tiny", "base", "small", "medium", "large-v2", "large-v3"],
+        help="Whisper model size (default: base)",
+    )
+    parser.add_argument(
+        "--compute-type",
+        default="int8",
+        choices=["int8", "float16", "float32"],
+        help="Compute type for optimization (default: int8)",
+    )
 
     args = parser.parse_args()
 
@@ -145,20 +172,22 @@ Examples:
         session.add_transcription(text)
 
     # Create and start transcriber
-    transcriber = RealTimeTranscriber(args.model, args.compute_type, callback=transcription_callback)
+    transcriber = RealTimeTranscriber(
+        args.model, args.compute_type, callback=transcription_callback
+    )
     transcriber.start_transcription()
 
-    print(f"\n🎙️  Recording started. Session file: {session.session_file}")
-    print("💡 Press Ctrl+C or Enter to stop recording...")
+    print(f"\nRecording started. Session file: {session.session_file}")
+    print("Press Ctrl+C or Enter to stop recording...")
 
     try:
         input()  # Wait for user input
     except KeyboardInterrupt:
-        print("\n⏹️  Stopping recording...")
+        print("\nStopping recording...")
     finally:
         transcriber.stop_transcription()
         session.end_session()
-        print(f"✅ Session saved to: {session.session_file}")
+        print(f"Session saved to: {session.session_file}")
 
 
 if __name__ == "__main__":
