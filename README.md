@@ -14,38 +14,45 @@ A lightweight, command-line Python application for real-time voice transcription
 ## Installation
 
 ```bash
-# Install from source using uv
+# Install dependencies and package using uv
 uv sync
-
-# Or install using pip
-pip install -e .
-
-# Or install dependencies manually
-pip install -r requirements.txt
+uv pip install -e .
 ```
 
-## Usage
+## Running
+
+After installation, run with:
+
+```bash
+# Option 1: Use uv run (no activation needed)
+uv run neta
+
+# Option 2: Activate the virtual environment first
+source .venv/bin/activate
+neta
+```
 
 ### Real-time Transcription
 
 ```bash
 # Basic usage (base model)
-python -m neta
+neta
 
 # Different model size
-python -m neta --model tiny     # Fastest, least accurate
-python -m neta --model small    # Good balance
-python -m neta --model base     # Default, recommended
+neta --model tiny     # Fastest, least accurate
+neta --model small    # Good balance
+neta --model base     # Default, recommended
 
 # Different compute type
-python -m neta --compute-type float16  # Higher quality, slower
+neta --compute-type float16  # Higher quality, slower
+neta --compute-type int8      # Faster, less accurate (default)
 ```
 
 ### Video File Transcription
 
 ```bash
-# Basic usage
-neta -i video.mp4 -o transcription.txt
+# After installing: neta -i video.mp4 -o transcription.txt
+# Or with uv run: uv run neta -i video.mp4 -o transcription.txt
 
 # With different model
 neta -i recording.mov -o output.txt --model small
@@ -113,3 +120,32 @@ Edit `src/neta/config.py` to customize:
 - **Start**: Run the command
 - **Stop**: Press `Ctrl+C` or `Enter`
 - **View results**: Check the generated session file
+
+## Programmatic Usage
+
+You can also use Neta as a Python library:
+
+```python
+from neta import RealTimeTranscriber
+
+# Create transcriber with optional callback
+def on_transcription(text):
+    print(f"Transcribed: {text}")
+
+transcriber = RealTimeTranscriber(
+    model_size="base",      # tiny, small, base, etc.
+    compute_type="int8",    # float16, int8, etc.
+    callback=on_transcription
+)
+
+# Start/stop transcription
+transcriber.start_transcription()
+# ... transcription runs ...
+transcriber.stop_transcription()
+```
+
+Available methods:
+- `start_transcription()` - Start recording and transcribing
+- `pause_transcription()` - Pause transcription (keeps recording)
+- `resume_transcription()` - Resume from pause
+- `stop_transcription()` - Stop and cleanup
